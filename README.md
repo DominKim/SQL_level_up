@@ -16,13 +16,15 @@
 - 로그 버퍼 : 갱신 처리와 관련 있음
 
 ## 2강 SQL 기초
-
+1. SELECT 구와 FROM 구
 - SELECT : 데이터베이스에서 데이터를 검색ㅎ할 때 반드시 입력해야 하는 부분. 테이블이 갖고 있는 필드라면 쉼표로 연결해서 여러 개 쓸 수 있다.
 - FROM [테이블 이름] : 데이터를 선택할 대상 테이블을 지정
 ``` sql
 SELCET name, phone_nbr, address, sex, age 
   FROM Address;
 ```
+
+2. WHERE 구
 - WHERE : SELECT 구문에서 레코드를 선택할 때 추가적인 조건을 지정할 때 사용
 ``` sql
 SELECT name, address
@@ -37,3 +39,19 @@ WHERE address = '인천시';
 | > | ~ 보다 큼	|
 | <= | ~ 이하	|
 | < | ~ 보다 작음	|
+- AND : 교집합
+- OR : 합집합
+- IN : OR 조건을 많이 지정해야 할 때
+``` sql
+SELECT name, address
+    FROM Address
+ WHERE address IN ('서울시', '부산시', '인천시');
+```
+- IS NULL : NULL 레코드를 선택할 때 사용하는 특별한 키워드
+- IS NOT NULL : IS NULL의 반대
+* NULL은 데이터값이 아니므로 데이터값에 적용하는 연산자를 적용할 수 없다.
+``` sql
+SELECT name, address
+    FROM Address
+ where phone_nbr IS NULL;
+```
