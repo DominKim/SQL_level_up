@@ -18,8 +18,19 @@
 ## 2강 SQL 기초
 
 - SELECT : 데이터베이스에서 데이터를 검색ㅎ할 때 반드시 입력해야 하는 부분. 테이블이 갖고 있는 필드라면 쉼표로 연결해서 여러 개 쓸 수 있다.
-- FRME [테이블 이름] : 데이터를 선택할 대상 테이블을 지정
+- FROM [테이블 이름] : 데이터를 선택할 대상 테이블을 지정
 ``` sql
 SELCET name, phone_nbr, address, sex, age 
   FROM Address;
 ```
+- WHERE : SELECT 구문에서 레코드를 선택할 때 추가적인 조건을 지정할 때 사용
+``` sql
+SELECT name, address
+  FROME Address
+WHERE address = '인천시';
+```
+| 연산자 | 의미 |
+| -------------   | -------------      |
+| = | ~와 같음	|
+| Batch Size | 50	|
+| n_Epoch | 10	|
