@@ -19,7 +19,7 @@
 
 - SELECT : 데이터베이스에서 데이터를 검색ㅎ할 때 반드시 입력해야 하는 부분. 테이블이 갖고 있는 필드라면 쉼표로 연결해서 여러 개 쓸 수 있다.
 - FRME [테이블 이름] : 데이터를 선택할 대상 테이블을 지정
-``` Oracle
+``` sql
 SELCET name, phone_nbr, address, sex, age 
   FROM Address;
 ```
