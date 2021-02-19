@@ -55,3 +55,25 @@ SELECT name, address
     FROM Address
  where phone_nbr IS NULL;
 ```
+
+3. GROUP BY 구
+- GROUP BY : 테으블에서 단순하게 데이터를 선택하는 것뿐만 아리나 합계 또는 평균 등의 집계 연산을 SQL 구문으로 할 수 다.
+
+SQL의 대표적인 집계 함수
+| 함수 이름 | 설명 |
+| ------------- | ------------- |
+| COUNT | 레코드 수를 계산	|
+| SUM | 숫자를 더함	|
+| AVG | 숫자의 평균을 구함	|
+| MAX | 최댓값을 구함	|
+| MIN | 최솟값을 구함	|
+
+- GROUP BY 구의 '()'는 키를 지정하지 않는다는 뜻, 일부 DBMS에서는 지원하지 않지만 논리적으로 이해하기는 쉬움
+``` sql
+SELECT COUNT(*)
+  FROM Address
+ GROUP BY ();
+ 
+SELECT COUNT(*)
+  FROM Address;
+```
