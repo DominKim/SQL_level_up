@@ -16,6 +16,9 @@
 - 로그 버퍼 : 갱신 처리와 관련 있음
 
 ## 2강 SQL 기초
+
+레코드 (Record) : 레코드란 여러 가지 데이터 타입을 가질 수 있는 복합형 구조의 데이터 타입이며, 하나의 행(Row)에 대응한다. 
+
 1. SELECT 구와 FROM 구
 - SELECT : 데이터베이스에서 데이터를 검색ㅎ할 때 반드시 입력해야 하는 부분. 테이블이 갖고 있는 필드라면 쉼표로 연결해서 여러 개 쓸 수 있다.
 - FROM [테이블 이름] : 데이터를 선택할 대상 테이블을 지정
@@ -76,4 +79,48 @@ SELECT COUNT(*)
  
 SELECT COUNT(*)
   FROM Address;
+```
+
+4. HAVING 구
+- HAVING : 집합에 또다시 조건을 걸어 선택하는 기능
+* WHERE 구와 차이점은 WHERE 구는 레크드에 조건을 지정하고 HABING 구는 집합에 조건을 지정
+``` sql
+SELECT address, COUNT(*)
+    FROM Address
+  GROUP BY address
+HAVING COUNT(*) = 1;
+```
+
+5. OREDER BY 구
+- ORDER BY : 모든 DBMS에서 SELECT 구문의 결과 순서를 보장할 때 명시적은 순서를 지정이 필요한데 그때 사용하는 기능
+- DESC : 내림차순, ASC : 오름차순(default)
+``` sql
+SELECT name, phone_nbr, address, sex, age
+    FROM Address
+  ORDER BY age DESC, phone_nbr;
+```
+- 정렬 시 겹치는 레코드가 있으면 정렬 키를 추가해서 정렬 순서를 지정
+
+6. 뷰와 서브쿼리
+- VIEW : 자주 사용하는 SELECT 구문을 데이터베이스 안에 저장하는 기능, 데이터를 보유하지 않고 SELECT구문을 저장
+- 뷰 생성 : CREATE VIEW [뷰 이름] ([필드 이름1], [필드 이름2] ...) AS
+``` sql
+CREATE VIEW CountAddress (v_address, cnt)
+AS
+SELECT address, COUNT(*)
+    FROM Address
+  GROUP BY address;
+```
+- 뷰 사용 : SELECT 구문 처럼 사용
+``` sql
+SELECT v_address, cnt
+    FROM CountAddress;
+```
+
+- 서브쿼리(subquery) : FROM 구에 직접 지정한 SELECT 구문
+* SQL은 서브 쿼리부터 순서대로 실행한다.
+``` sql
+SELECT name
+    FROM Address
+ WHERE name IN (SELECT name FROM Address2);
 ```
