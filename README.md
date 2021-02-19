@@ -15,4 +15,4 @@
 - 데이터 캐시 : 디스크에 있는 데이터의 일부를 메모리에 유지하기 위해 사용하는 메모리 영역
 - 로그 버퍼 : 갱신 처리와 관련 있음
 
-## 2강 [SELECT구문](https://github.com/DominKim/SQL_level_up/blob/main/01_SELECT구문/README.md)
+## 2강 [SELECT구문](https://github.com/DominKim/SQL_level_up/tree/main/01_SELECT구문)
