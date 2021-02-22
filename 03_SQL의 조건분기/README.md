@@ -1,5 +1,6 @@
-## 03_UNION을 사용한 쓸데없이 긴 표현
+## 03_SQL의 조건분기
 
+### UNION을 사용한 쓸데없이 긴 표현
 - UNION 사용 여부는 신중히 검토하는 것이 필요!
 - Why? UNION 사용은 여러 개의 SELECT 구문으로 인해 테이블 접근횟수가 많아져 I/O 비용이 크게 늘어남 
 
@@ -22,4 +23,8 @@ SELECT item_name, year,
          WHEN year >= 2002 THEN price_tax_in END AS price
  FROM Items;
 ```
-- IF 조건문을 CAE로는 어떻게 해결할 수 있는지?에 대해 꾸준히 생각하기 (SQL 마스터 열쇠 중 하나)
+- IF 조건문을 CASE로는 어떻게 해결할 수 있는지?에 대해 꾸준히 생각하기 (SQL 마스터 열쇠 중 하나)
+
+### 집계와 조건 분기
+
+지역 별 남자와 여자 인구 구하기
