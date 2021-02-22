@@ -27,4 +27,77 @@ SELECT item_name, year,
 
 ### 집계와 조건 분기
 
-지역 별 남자와 여자 인구 구하기
+- 집계 대상으로 조건 분기
+지역 별 남자와 여자 인구 구하기(표측 / 표두 레이아웃 이동 문제)
+``` sql
+SELECT prefecture,
+    SUM(CASE WHEN sex = 1 THEN pop ELSE 0 END) AS pop_men,
+    SUM(CASE WHEN sex = 2 THEN pop ELSE 0 ENd) AS pop_wom
+ FROM Population
+GROUP BY prefecture;
+```
+
+- 집약 결과로 조건 분기
+- 문자열을 사용할 경우 MAX는 데이터베이스가 해당 열에 정의한 정렬 순서에서 가장 높은 값을 찾습니다.
+```sql
+SELECT emp_name,
+    CASE WHEN COUNT(*) = 1 THEN MAX(team)
+         WHEN COUNT(*) = 2 THEN '2개를 겸무'
+         WHEN COUNT(*) >= 3 THEN '3개 이상을 겸무'
+     END AS team
+ FROM Employees
+GROUP BY emp_name;
+```
+
+### 그래도 UNION이 필요한 경우
+- UNION을 사용할 수밖에 없는 경우 : 머지 대상이 되는 테이블이 다른 경우
+``` sql
+SELECT col_1
+    FROM Table_A
+ WHERE col_2 = 'A'
+UNION ALL
+SELECT col_3
+    FROM Table_B
+ WHERE col_4 = 'B';
+```
+
+- UNION을 사용하는 것이 성능적으로 더 좋은 경우
+2013-11-1를 값으로 갖고 있고 대칭되는 플래그 필드의 값이 'T'인 레코드 선택
+UNION을 사용한 방법
+``` sql
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+    FROM ThreeElements
+ WHERE date_1 = '2013-11-01'
+  AND flg_1 = 'T'
+UNION
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+    FROM ThreeElements
+ WHERE date_2 = '2013-11-01'
+  AND flg_2 = 'T'
+UNION
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+    FROM ThreeElements
+ WHERE date_3 = '2013-11-01'
+  AND flg_3 = 'T';
+```
+
+OR을 사용한 방법
+``` sql
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+    FROM ThreeElements
+ WHERE (date_1 = '2013-11-01' AND flg_1 = 'T')
+    OR (date_2 = '2013-11-01' AND flg_2 = 'T')
+    OR (date_3 = '2013-11-01' AND flg_3 = 'T');
+```
