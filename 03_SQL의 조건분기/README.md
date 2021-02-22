@@ -62,8 +62,11 @@ SELECT col_3
 ```
 
 - UNION을 사용하는 것이 성능적으로 더 좋은 경우
+    - 필드 조합에 인덱스를 사용하면 최적의 성능으로 수행
+
 2013-11-1를 값으로 갖고 있고 대칭되는 플래그 필드의 값이 'T'인 레코드 선택
-UNION을 사용한 방법
+
+- UNION을 사용한 방법
 ``` sql
 SELECT key, name,
        date_1, flg_1,
@@ -90,7 +93,10 @@ SELECT key, name,
   AND flg_3 = 'T';
 ```
 
-OR을 사용한 방법
+- OR을 사용한 방법
+- WHERE 구문에서 OR을 사용하면 해당 필드에 부여된 인덱스를 사용할 수 없다.
+- SO, UNION vs OR = 3회의 인덱스 스캔 vs 1회의 테이블 풀 스캔
+- 속도 판단 : 테이블이 크고, WHERE 조건으로 선택되는 레코드의 수가 충분히 작다면 UNION이 더 빠르다.
 ``` sql
 SELECT key, name,
        date_1, flg_1,
@@ -101,3 +107,33 @@ SELECT key, name,
     OR (date_2 = '2013-11-01' AND flg_2 = 'T')
     OR (date_3 = '2013-11-01' AND flg_3 = 'T');
 ```
+
+-IN을 사용한 방법
+- 다중 필드라는 기능을 사용한 방법
+``` sql
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+    FROM ThreeElements
+ WHERE ('2013-11-01', 'T')
+        IN ((date_1, flg_1),
+            (date_2, flg_2),
+            (date_3, flg_3));
+```
+
+- CASE식을 사용한 방법
+``` sql
+SELECT key, name,
+       date_1, flg_1,
+       date_2, flg_2,
+       date_3, flg_3
+　FROM ThreeElements
+ WHERE CASE WHEN date_1 = '2013-11-01' THEN flg_1
+            WHEN date_2 = '2013-11-01' THEN flg_2
+            WHEN date_3 = '2013-11-01' THEN flg_3
+       ELSE NULL END = 'T';
+```
+
+- UNION과 IN은 짝들을 전부 평가한다.
+- CASE 식의 WHEN 구는 단락 평가를 수행 한다.
