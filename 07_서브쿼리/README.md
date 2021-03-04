@@ -1,111 +1,136 @@
-## 06_결합
+## 07_서브쿼리
 
-## 기능적 관점으로 구분하는 결합의 종류
-### 1. 크로스 결합 - 모든 결합의 모체
-- 실무에 사용할 기회가 거의 없다.
-- 크로스 결합이 실무에서 사용되지 않는 이유
-  - 이러한 결과가 필요한 경우가 없다.
-  - 비용이 매우 많이 드는 연산이다.
-- 실수로 사용한 크로스 결합
+## 서브쿼리가 일으키는 폐해
+### 1. 서브쿼리의 문제점
+- 서브쿼리가 실체적인 데이터를 저장하고 있지 않다는 점에서 성능적 문제 야기
+
+- 연산 비용 추가
+  - SELECT 구문 실행에 발생하는 비용 추가
+
+- 데이터 I/O 비용 발생
+  - 데이터 양이 큰 경우 등에는 DBMS가 저장송 있는 파일에 결과를 쓸 때도 있다.
+
+- 최적화를 받을 수 없음
+  - 서브쿼리에는 메타 정보(인덱스 등)가 하나도 존재하지 않다.
+
+### 2. 서브쿼리 의존증
+- 서브쿼리를 사용한 방법
 ``` sql
-SELECT *
-  FROM Employees, Departments;
+SELECT R1.cust_id, R1.seq, R1.price
+　FROM Receipts R1
+         INNER JOIN
+           (SELECT cust_id, MIN(seq) AS min_seq
+              FROM Receipts
+             GROUP BY cust_id) R2
+    ON R1.cust_id = R2.cust_id
+　 AND R1.seq = R2.min_seq;
+```
+  - 코드가 복잡해서 읽기 어렵다, 성능의 단점
+
+- 상관 서브쿼리는 답이 될 수 없다.
+``` sql
+SELECT cust_id, seq, price
+　FROM Receipts R1
+ WHERE seq = (SELECT MIN(seq)
+                FROM Receipts R2
+               WHERE R1.cust_id = R2.cust_id);
 ```
 
-### 2. 내 결합 - 왜 '내부'라는 말을 사용할까?
-- 내부 결합의 작동
-  - 내부 결합의 결과는 모두 크로스 결합 결과의 일부(부분집합)
-내부 결합을 실행
+- 윈도우 함수로 결합을 제거
+  - ROW_NUMBER() : 그룹 내 순위 결정 함수
 ``` sql
-SELECT E.emp_id, E.emp_name, E.dept_id, D.dept_name
-  FROM Employees E INNER JOIN Departments D
-    ON E.dept_id = D.dept_id;
+SELECT cust_id, seq, price
+  FROM (SELECT cust_id, seq, price,
+            ROW_NUMBER() OVER (PARTITION BY cust_id
+                                   ORDER BY seq) AS row_seq
+        FROM Receipts) WORK
+ WHERE WORK.row_seq = 1;
 ```
 
-- 내부 결합과 같은 기능을 하는 상관 서브쿼리
-  - 내부 결합은 기능적을 상관 서브쿼리를 사용해 대체 가능한 경구가 많다.
-  - 기본적으로 결합을 사용하는 것이 좋다.(Why? 상관 서브쿼리르 스칼라 서브쿼리로 사용하면 겨과 레코드 수만큼 상관 서브쿼리를 실행해 비용이 꽤 높기 때문)
+### 3. 장기적 관점에서의 리스크 관리
+- 저장소의 I/O 양을 감소시키는 것이 SQL 튜닝의 가장 기본 원칙
+- 결합을 사용하는 쿼리의 불안정 요소
+  - 1. 결합 알고리즘의 변동 리스크
+  - 2. 환경 요인에 의한 지연 리스크(인덱스, 메모리, 매개변수 등)
+
+- 알고리즘 변동 리스크 
+  - 테이블의 크기 등을 고려해서 옵티마이저가 자동으로 결정
+
+- 환경 요인에 의하 지여 리스크
+  - 실행 계획이 단순할수록 성능이 안정적
+  - 엔지니어는 기능(결과)뿐만 아니라 비기능적인 부분(성능)도 보장할 책임이 있다.
+
+### 4.서브쿼리 의존증 - 응용편
+- 다시 서브쿼리 의존증
 ``` sql
-SELECT E.emp_id, E.emp_name, E.dept_id,
-       (SELECT D.dept_name
-          FROM Departments D
-         WHERE E.dept_id = D.dept_id) AS dept_name
-  FROM Employees E;
+SELECT TMP_MIN.cust_id,
+       TMP_MIN.price - TMP_MAX.price AS diff
+　FROM (SELECT R1.cust_id, R1.seq, R1.price
+          FROM Receipts R1
+                 INNER JOIN
+                  (SELECT cust_id, MIN(seq) AS min_seq
+                     FROM Receipts
+                    GROUP BY cust_id) R2
+            ON R1.cust_id = R2.cust_id
+           AND R1.seq = R2.min_seq) TMP_MIN
+       INNER JOIN
+       (SELECT R3.cust_id, R3.seq, R3.price
+          FROM Receipts R3
+                 INNER JOIN
+                  (SELECT cust_id, MAX(seq) AS min_seq
+                     FROM Receipts
+                    GROUP BY cust_id) R4
+            ON R3.cust_id = R4.cust_id
+           AND R3.seq = R4.min_seq) TMP_MAX
+    ON TMP_MIN.cust_id = TMP_MAX.cust_id;
 ```
 
-### 3. 외부 결합 - 왜 '외부'라는 말을 사용할까?
-- '내부' : 데카르트 곱의 부분 집합, '외부' : 데카르트 곱의 부분 집합이 아니다.
-- 데이터 상태에 따 경우에 따라서는 데카르 곱의 부분 집합
-
-- 외부결합의 작동
-  - 왼쪽 외부 결합
-  - 오른쪽 외부 결합
-  - 완전 외부 결합
-
-  - 왼쪽, 오른쪽 외부결합은 실질적으로 같은 기능을 가짐, 마스터가 되는 테이블의 기준에 따라 왼쪽, 오른쪽이 나뉘며 마스터 테이블 쪽에만 존재하는 키가 있을 때는 해당 키를 제거하지 않고 보존함
-
+- 레코드 간 비교에서도 결합은 불필요
 ``` sql
-SELECT E.emp_id, E.emp_name, E.dept_id, D.dept_name
-  FROM Departments D LEFT OUTER JOIN Employees E
-    ON D.dept_id = E.dept_id;
+SELECT cust_id,
+       SUM(CASE WHEN min_seq = 1 THEN price ELSE 0 END)
+            - SUM(CASE WHEN max_seq = 1 THEN price ELSE 0 END) diff
+    FROM (SELECT cust_id, price,
+                 ROW_NUMBER() OVER (PARTITION BY cust_id
+                                        ORDER BY seq) AS min_seq,
+                 ROW_NUMBER() OVER (PARTITION BY cust_id
+                                        ORDER BY seq DESC) AS max_seq
+                FROM Receipts) WORK
+  WHERE WORK.min_seq = 1
+     OR WORK.max_seq = 1
+ GROUP BY cust_id;
 ```
 
-### 4. 외부 결합합과 내부 결합의 차이
-- 외부 결합 결과가 크로스 결합 결과의 부분 집합이 아닌 이유는 이렇게, 외부 결합이 마스터 테이블의 정보르 모두 보존하고자 NULL을 생성하기 때문
+### 5. 서브쿼리는 정말 나쁠까?
+- 생각의 보조 도구
 
-### 5. 자기 결합 - '자기'란 누구일까?
-- 자기 결합(self join)은 문자 그대로 자기 자신과 결합하는 연산으로, 간단하게 말하면 같은 테이블을 사용해 결합하는 것
-
-- 자기 결합의 작동
-자기 결합 + 크로스 결합
+## 서브쿼리 사용이 더 나은 경우
+### 1. 결합과 집약 순서
+- 두 가지 방법
+결합을 먼저 수행
 ``` sql
-SELECT D1.digit + (D2.digit * 10) AS seq
-  FROM Digits D1 CROSS JOIN Digits D2
-  ORDER BY seq;
+ SELECT C.co_cd, MAX(C.district),
+        SUM(emp_nbr) AS  sum_emp
+    FROM Companies C
+            INNER JOIN
+               Shops S
+      ON C.co_cd = S.co_cd
+ WHERE main_flg = 'Y'
+ GROUP BY C.co_cd;
+```
+집약을 먼저 수행
+``` sql
+SELECT C.co_cd, C.district, sum_emp
+　FROM Companies C
+         INNER JOIN
+          (SELECT co_cd,
+                  SUM(emp_nbr) AS sum_emp
+             FROM Shops
+            WHERE main_flg = 'Y'
+            GROUP BY co_cd) CSUM
+    ON C.co_cd = CSUM.co_cd;
 ```
 
-- 자기 결합의 사고방식
-  - 일반적으로 같은 테으블에 별칭을 붙여 마치 다른 테이블인 것처러 다룸
-
-## 결합 알고리즘과 성능
-
-### 1. Nested Loops
-- Nested Loops의 작동
-  - 이름 그대로 중첩 반복을 사용하는 알고리즘
-  - Python의 이중 for문
-  - Hash 또는 Sort Merge에 비해 메모리 소비가 적다.
-  - 모든 DBMS에서 지원
-
-- 구동 테이블의 중요성
-  - Nested Loops의 성능을 개선하는 키워드 : 구동 테이블로는 작은 테이블을 선택
-  - When? 내부 테이블의 결합 키 필드에 인덱스가 존재
-  - 구동 테이블이 작은 Nested Loops + 내부 테이블의 결합 키 인덱스 (SQL 튜닝의 기본)
-
-- Nested Loops의 단점
-  - 결합 키로 내부 테이블에 접근할 때 히트되는 레코드가 너무 많은 경우
-  - 대처하는 방법 : 구동 테이블로 큰 테이블을 선택하는 역설적인 방법, 해시 사용
-
-### 2. Hash
-- Hash의 작동
-  - 입력에 대해 어느 정도 유일성과 균일성을 가진 값을 출력하는 함수
-  - 해시 결합 : 작은 테이블을 스캔하고, 결합 키에 해시 함수를 적용해서 해시값으로 변환
-- Hast의 특징
-  - 결합 테이블로부터 해시 테이블을 만들어서 활용, Nested Loops에 비해 메모리를 크게 소모
-  - 메모리가 부족하며 저장소를 사용하므로 지연ㅇ 발생
-  - 출력되는 해시값은 입력값의 순서를 알ㅈ 못하므로, 등치 결합에만 사용
-- Hast가 유용한 경우
-  - Nested Loops에서 적절한 구동 테이블이 존재하지 않는 경우
-  - 내부 테이블에서 히트되느 레코드 수가 너무 많은 경우
-  - Nseted Loops의 내부 테이블에 인덱스가 존재하지 않는 경우
-
-### 3. Sort Merge
-- Sort Merge의 작동
-  - 결합 대상 테이블들을 각각 결합 키로 정렬하고, 일치하는 결합 키를 찾으면 결합
-- Sort Merge의 특징
-  - 메모리 부족으로 TEMP 탈락이 발생하면 I / O 비용이 늘어나고 지연이 발생할 위험이 있다.
-  - Hash와 다르게 동치 결합뿐만 아니라 부등호를 사용하 결합에도 사용할 수 있다.
-  - 원리적으로는 테이블이 결합 키로 정렬되어 있다며 정렬을 생략할 수 있다. 다만, 이는 SQL에서 테이블에 있는 레코드의 물리적인 위치를 알고 있을 때
-  - 테이블을 정렬하므로 한쪽 테이블을 모두 스캔한 시점에 결합을 완료할 수 있다.
-- Sort Merg가 유효하 경우
-  - 테이블 정렬을 생략할 수 있는 경우에 고려
+- 결합 대상 레코드 수
+#
 
