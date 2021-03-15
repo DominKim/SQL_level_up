@@ -123,3 +123,31 @@ SELECT name
     FROM Address
  WHERE name IN (SELECT name FROM Address2);
 ```
+
+7. 문자열 연산
+* 문자열 결합
+| 함수 이름 | 설명 |
+| ------------- | ------------- |
+| + | SQL Server	|
+| || | Oracle, DB2, PostgreSQL	|
+| CONCAT | MySQL	|
+
+
+* TRIM() : 문자열의 앞뒤로 여분의 스페이스가 있을 경우 이를 제거해주는 함수로 문자열 도중에 존재하는 스페이스는 제거되지 않는다.
+  - ex) TRIM('ABC  ') -> 'ABC'
+* CHARATER_LENGTH() : 문자열의 길이를 계산해 돌려주는 함수
+
+8. 날짜 연산
+* 시스템 날짜
+  - CURRENT_TIMESTAMP : 실행했을 때를 기준으로 시간 표시 함수, 인수를 지정할 필요가 없음
+  - Oracle : SYSDATE
+* 날짜 서식
+  - TO_DATE('2014/01/25', 'YYYY/MM/DD') : 문자열 데이터를 날짜형 데이터로 변환
+
+* 날짜의 덧셈과 뺄셈
+  - SELECT CURRENT_DATE + INTERVAL 1 DAY; : 기준 날짜에 1일 후
+  - MySQL : DATEDIFF('2014-02-28', '2014-01-01')
+
+###
+
+#
