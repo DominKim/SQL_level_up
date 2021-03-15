@@ -30,6 +30,7 @@ SELECT name, address,
 ```
   - CASE 식의 강력함 점은 '식'이라는 것 -> 식을 적을 수 있는 곳이라면 어디든지 적을 수 있다.(SELECT, WHERE, GROUP BY, HAVING, ORDER BY)
   - SQL의 성능과도 굉장히 큰 관련이 있다.
+  - ELSE 생략 시 ELSE NULL이 
 
 2. SQL의 집합연산
 - UNION으로 합집합 구하기 : 
