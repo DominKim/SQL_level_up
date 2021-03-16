@@ -133,7 +133,7 @@ SELECT name
 | 함수 이름 | 설명 |
 | ------------- | ------------- |
 | + | SQL Server	|
-| \|| | Oracle, DB2, PostgreSQL	|
+| \|\| | Oracle, DB2, PostgreSQL	|
 | CONCAT | MySQL	|
 
 
