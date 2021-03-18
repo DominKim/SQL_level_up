@@ -147,6 +147,7 @@ SELECT name
   - Oracle : SYSDATE
 * 날짜 서식
   - TO_DATE('2014/01/25', 'YYYY/MM/DD') : 문자열 데이터를 날짜형 데이터로 변환
+  - TO_CHAR(DATETIME, 'YYYY/MM/DD') : 날짜형 데이터 타입을 변경
 
 * 날짜의 덧셈과 뺄셈
   - SELECT CURRENT_DATE + INTERVAL 1 DAY; : 기준 날짜에 1일 후
