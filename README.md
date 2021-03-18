@@ -1,5 +1,7 @@
 # SQL_level_up
 
+- repository의 모든 내용은 : [SQL 첫걸음](https://book.naver.com/bookdb/book_detail.nhn?bid=9738902), [SQL 레벨업](https://book.naver.com/bookdb/book_detail.nhn?bid=10160776)에 기반하여 작성
+
 ## 1강 DBMS 아키텍처 개요
 
 - 쿼리 평가엔진 : 사용자로부터 입력받은 SQL 구문을 분석하고, 어떤 순서로 기억장치의 데이터에 접근할지를 결정
