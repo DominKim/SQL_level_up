@@ -94,9 +94,9 @@ SELECT key, name,
 ```
 
 - OR을 사용한 방법
-- WHERE 구문에서 OR을 사용하면 해당 필드에 부여된 인덱스를 사용할 수 없다.
-- SO, UNION vs OR = 3회의 인덱스 스캔 vs 1회의 테이블 풀 스캔
-- 속도 판단 : 테이블이 크고, WHERE 조건으로 선택되는 레코드의 수가 충분히 작다면 UNION이 더 빠르다.
+    - WHERE 구문에서 OR을 사용하면 해당 필드에 부여된 인덱스를 사용할 수 없다.
+    - SO, UNION vs OR = 3회의 인덱스 스캔 vs 1회의 테이블 풀 스캔
+    - 속도 판단 : 테이블이 크고, WHERE 조건으로 선택되는 레코드의 수가 충분히 작다면 UNION이 더 빠르다.
 ``` sql
 SELECT key, name,
        date_1, flg_1,
