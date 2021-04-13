@@ -52,6 +52,7 @@ SELECT name, address
   - _ : 임의의 문자 하나
 - '''' : 문자열 상수를 검색하기 위해서는 '를 2개 연속해서 기술
 - ROWNUM : 행번호를 검색 가능하게 하는 함수 검색 조건에서 몇개의 행을 볼 것인지 정할 때 사용 가능 ex) WHERE ROWNUM <= 3;
+- REPLACE : python replace랑 같다.
 
 3. GROUP BY 구
 - GROUP BY : 테이블에서 단순하게 데이터를 선택하는 것뿐만 아니라 합계 또는 평균 등의 집계 연산을 SQL 구문으로 할 수있다.
@@ -64,8 +65,10 @@ SQL의 대표적인 집계 함수
 | AVG | 숫자의 평균을 구함	|
 | MAX | 최댓값을 구함	|
 | MIN | 최솟값을 구함	|
-| ROUND | 반올림 |
-| TRUNCATE | 반내림 |
+| ROUND | 반올림(실수, 반올림할 수) |
+| TRUNCATE | 반내림(실수, 반내림할 수) |
+| CEIL | 반올림(실수) |
+| FLOOPR | 반내림(실수) |
 - NULL 값을 제외하고 연산
 - DISTINCT : 중복 값 제거
 
